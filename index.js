@@ -9,17 +9,21 @@ const access_key = process.env.UPBIT_OPEN_API_ACCESS_KEY;
 const secret_key = process.env.UPBIT_OPEN_API_SECRET_KEY;
 const server_url = process.env.UPBIT_OPEN_API_URL;
 
-const payload = {
-  access_key,
-  nonce: uuid(),
-};
-
-const token = sign(payload, secret_key);
-
 const instance = axios.create({
   baseURL: server_url,
   timeout: 1000,
-  headers: { Authorization: `Bearer ${token}` },
+  params: { market: "KRW-OMG", count: "1" },
 });
 
-instance.get("/v1/accounts").then((response) => console.log(response));
+setInterval(() => {
+  const today = new Date();
+  instance
+    .get("/v1/candles/minutes/1")
+    .then((response) =>
+      console.log(
+        `${today.toLocaleTimeString()} 기준 오미세고 가격 : ${
+          response.data[0].trade_price
+        }`
+      )
+    );
+}, 1000);
